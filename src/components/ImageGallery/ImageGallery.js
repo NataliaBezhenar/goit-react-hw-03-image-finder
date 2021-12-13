@@ -1,42 +1,26 @@
 import { Component } from "react";
 import "./ImageGallery.css";
 import ImageGalleryItem from "../ImageGalleryItem/ImageGalleryItem";
-import { fetchImages } from "../../services/fetchApi";
-
-const APP_KEY = "16152697-2240022566bfb10dd1cf00ec5";
-const per_page = 12;
-const URL = "https://pixabay.com/api/?key=";
-let page = 1;
 
 export default class ImageGallery extends Component {
   state = { output: null, loading: false };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevProps.searchQuery !== this.props.searchQuery) {
-      console.log("Query has changed");
-      console.log(this.props);
-      this.setState({ loading: true });
-      const queryString = `${URL}${APP_KEY}&q=${encodeURIComponent(
-        this.props.searchQuery
-      )}&per_page=${per_page}&page=${page}&image_type=photo&orientation=horizontal`;
-
-      fetchImages(queryString)
-        .then((output) => this.setState({ output }))
-        .catch((error) => console.log(error))
-        .finally(() => this.setState({ loading: false }));
+  handleOpenModal = (e) => {
+    if (e.target !== e.currentTarget) {
+      this.props.onClick();
     }
-  }
-
+  };
   render() {
-    const { output } = this.state;
+    const { images, onItemClick } = this.props;
     return (
-      <div>
-        {this.state.loading && <h1>Loading.....</h1>}
-        <ul className="ImageGallery">
-          {output &&
-            output.hits.map((item) => <ImageGalleryItem currentObj={item} />)}
-        </ul>
-      </div>
+      <ul className="ImageGallery" onClick={this.handleOpenModal}>
+        {images &&
+          images.map((image) => (
+            <li key={image.id} className="ImageGalleryItem">
+              <ImageGalleryItem {...image} onItemClick={onItemClick} />
+            </li>
+          ))}
+      </ul>
     );
   }
 }
