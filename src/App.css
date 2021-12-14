@@ -8,3 +8,9 @@
 .Wrapper {
   text-align: center;
 }
+
+.TextBlock {
+  text-align: center;
+  color: #808080;
+  font-style: oblique;
+}

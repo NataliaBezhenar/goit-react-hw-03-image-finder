@@ -8,6 +8,7 @@ import ImageGallery from "./components/ImageGallery/ImageGallery";
 import Button from "./components/Button/Button";
 import { fetchImages } from "./services/fetchApi";
 import Spinner from "./components/Loader/Loader";
+import { PER_PAGE } from "./services/fetchApi";
 
 class App extends Component {
   state = {
@@ -18,6 +19,7 @@ class App extends Component {
     output: [],
     page: 1,
     error: null,
+    hideLoadMoreBtn: false,
   };
 
   componentDidUpdate(prevProps, { searchQuery, page }) {
@@ -39,8 +41,20 @@ class App extends Component {
     const { searchQuery, page } = this.state;
     fetchImages(searchQuery, page)
       .then(({ hits }) => {
+        if (hits.length === 0) {
+          this.setState({ status: "rejected" });
+          return;
+        }
+        if (hits.length < PER_PAGE) {
+          this.setState(({ hideLoadMoreBtn }) => ({
+            hideLoadMoreBtn: !hideLoadMoreBtn,
+          }));
+        }
         this.setState(({ output }) => {
-          return { output: [...output, ...hits], status: "resolved" };
+          return {
+            output: [...output, ...hits],
+            status: "resolved",
+          };
         });
       })
       .catch((error) => this.setState({ error, status: "rejected" }));
@@ -57,7 +71,7 @@ class App extends Component {
   };
 
   handleFormSubmit = (searchQuery) => {
-    this.setState({ searchQuery, page: 1, output: [] });
+    this.setState({ searchQuery, page: 1, output: [], hideLoadMoreBtn: false });
   };
 
   handleLoadMoreBtnClick = () => {
@@ -75,56 +89,61 @@ class App extends Component {
   };
 
   render() {
-    const { showModal, output, modalContent, status } = this.state;
-    const showBtn = output.length > 0 && status !== "rejected";
+    const { showModal, output, modalContent, status, hideLoadMoreBtn } =
+      this.state;
+    const showBtn =
+      output.length > 0 && status !== "rejected" && !hideLoadMoreBtn;
+
+    let result = null;
     if (status === "idle") {
-      return (
-        <div>
-          <Searchbar onSubmit={this.handleFormSubmit} />
-          <h1>Enter search query</h1>
+      result = (
+        <div className="TextBlock">
+          <h2>Enter search query</h2>
         </div>
       );
     }
 
     if (status === "pending") {
-      return (
+      result = (
         <div className="Wrapper">
-          <Searchbar onSubmit={this.handleFormSubmit} />
           <Spinner />
         </div>
       );
     }
 
     if (status === "rejected") {
-      return (
-        <div>
-          <Searchbar onSubmit={this.handleFormSubmit} />
-          <h1>Nothing was found on your query</h1>
+      result = (
+        <div className="TextBlock">
+          <h2>Nothing was found on your query. Please try again</h2>
         </div>
       );
     }
 
     if (status === "resolved") {
-      return (
-        <div className="App">
-          <Searchbar onSubmit={this.handleFormSubmit} />
-          <ImageGallery
-            images={output}
-            onClick={this.toggleModal}
-            onItemClick={this.modalContentShow}
-          />
-          {showBtn && (
-            <div className="Wrapper">
-              <Button onLoadMoreClick={this.handleLoadMoreBtnClick} />{" "}
-            </div>
-          )}
-          {showModal && (
-            <Modal content={modalContent} onClose={this.toggleModal} />
-          )}
-          <ToastContainer autoClose={3000} position="top-center" />
-        </div>
+      result = (
+        <ImageGallery
+          images={output}
+          onClick={this.toggleModal}
+          onItemClick={this.modalContentShow}
+        />
       );
     }
+
+    return (
+      <div className="App">
+        <Searchbar onSubmit={this.handleFormSubmit} />
+        {result}
+        {showBtn && (
+          <div className="Wrapper">
+            <Button onLoadMoreClick={this.handleLoadMoreBtnClick} />
+          </div>
+        )}
+        {showModal && (
+          <Modal content={modalContent} onClose={this.toggleModal} />
+        )}
+        <ToastContainer autoClose={3000} position="top-center" />
+      </div>
+    );
   }
 }
 
