@@ -7,6 +7,7 @@ import Searchbar from "./components/Searchbar/Searchbar";
 import ImageGallery from "./components/ImageGallery/ImageGallery";
 import Button from "./components/Button/Button";
 import { fetchImages } from "./services/fetchApi";
+import Spinner from "./components/Loader/Loader";
 
 class App extends Component {
   state = {
@@ -87,9 +88,9 @@ class App extends Component {
 
     if (status === "pending") {
       return (
-        <div>
+        <div className="Wrapper">
           <Searchbar onSubmit={this.handleFormSubmit} />
-          <h3>LoAdiNg-------------------</h3>
+          <Spinner />
         </div>
       );
     }
@@ -112,7 +113,11 @@ class App extends Component {
             onClick={this.toggleModal}
             onItemClick={this.modalContentShow}
           />
-          {showBtn && <Button onLoadMoreClick={this.handleLoadMoreBtnClick} />}
+          {showBtn && (
+            <div className="Wrapper">
+              <Button onLoadMoreClick={this.handleLoadMoreBtnClick} />{" "}
+            </div>
+          )}
           {showModal && (
             <Modal content={modalContent} onClose={this.toggleModal} />
           )}
