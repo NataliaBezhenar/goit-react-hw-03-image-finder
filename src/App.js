@@ -12,30 +12,37 @@ class App extends Component {
   state = {
     showModal: false,
     modalContent: "",
-    loading: false,
     searchQuery: "",
     status: "idle",
     output: [],
     page: 1,
+    error: null,
   };
 
   componentDidUpdate(prevProps, { searchQuery, page }) {
     if (searchQuery !== this.state.searchQuery || page !== this.state.page) {
-      this.getData();
+      this.setState({ status: "pending" });
+      this.getImages();
     }
+    this.handleScroll();
   }
 
-  getData = () => {
+  handleScroll = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
+  };
+
+  getImages = () => {
     const { searchQuery, page } = this.state;
-    this.setState({ loading: true });
     fetchImages(searchQuery, page)
       .then(({ hits }) => {
         this.setState(({ output }) => {
-          return { output: [...output, ...hits] };
+          return { output: [...output, ...hits], status: "resolved" };
         });
       })
-      .catch((error) => console.log(error.message))
-      .finally(this.setState({ loading: false }));
+      .catch((error) => this.setState({ error, status: "rejected" }));
   };
 
   toggleModal = () => {
@@ -67,26 +74,52 @@ class App extends Component {
   };
 
   render() {
-    <Searchbar />;
-    const { showModal, output, modalContent } = this.state;
+    const { showModal, output, modalContent, status } = this.state;
+    const showBtn = output.length > 0 && status !== "rejected";
+    if (status === "idle") {
+      return (
+        <div>
+          <Searchbar onSubmit={this.handleFormSubmit} />
+          <h1>Enter search query</h1>
+        </div>
+      );
+    }
 
-    return (
-      <div className="App">
-        <Searchbar onSubmit={this.handleFormSubmit} />
-        {this.state.loading && <h1>Loading.....</h1>}
-        <ImageGallery
-          images={output}
-          onClick={this.toggleModal}
-          onItemClick={this.modalContentShow}
-        />
-        <Button onLoadMoreClick={this.handleLoadMoreBtnClick} />
-        {showModal && (
-          <Modal content={modalContent} onClose={this.toggleModal} />
-        )}
+    if (status === "pending") {
+      return (
+        <div>
+          <Searchbar onSubmit={this.handleFormSubmit} />
+          <h3>LoAdiNg-------------------</h3>
+        </div>
+      );
+    }
 
-        <ToastContainer autoClose={3000} position="top-center" />
-      </div>
-    );
+    if (status === "rejected") {
+      return (
+        <div>
+          <Searchbar onSubmit={this.handleFormSubmit} />
+          <h1>Nothing was found on your query</h1>
+        </div>
+      );
+    }
+
+    if (status === "resolved") {
+      return (
+        <div className="App">
+          <Searchbar onSubmit={this.handleFormSubmit} />
+          <ImageGallery
+            images={output}
+            onClick={this.toggleModal}
+            onItemClick={this.modalContentShow}
+          />
+          {showBtn && <Button onLoadMoreClick={this.handleLoadMoreBtnClick} />}
+          {showModal && (
+            <Modal content={modalContent} onClose={this.toggleModal} />
+          )}
+          <ToastContainer autoClose={3000} position="top-center" />
+        </div>
+      );
+    }
   }
 }
 

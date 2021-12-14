@@ -1,4 +1,5 @@
 import { Component } from "react";
+import PropTypes from "prop-types";
 import "./ImageGalleryItem.css";
 
 export default class ImageGalleryItem extends Component {
@@ -8,6 +9,7 @@ export default class ImageGalleryItem extends Component {
 
   render() {
     const { id, webformatURL, tags } = this.props;
+
     return (
       <img
         src={webformatURL}
@@ -18,3 +20,9 @@ export default class ImageGalleryItem extends Component {
     );
   }
 }
+
+ImageGalleryItem.propTypes = {
+  id: PropTypes.number,
+  webformatURL: PropTypes.string,
+  tags: PropTypes.string,
+};

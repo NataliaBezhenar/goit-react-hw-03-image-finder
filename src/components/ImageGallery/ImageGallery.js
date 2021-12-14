@@ -1,6 +1,7 @@
 import { Component } from "react";
 import "./ImageGallery.css";
 import ImageGalleryItem from "../ImageGalleryItem/ImageGalleryItem";
+import PropTypes from "prop-types";
 
 export default class ImageGallery extends Component {
   state = { output: null, loading: false };
@@ -25,3 +26,13 @@ export default class ImageGallery extends Component {
     );
   }
 }
+
+ImageGallery.propTypes = {
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+    })
+  ).isRequired,
+  onClick: PropTypes.func.isRequired,
+  onItemClick: PropTypes.func.isRequired,
+};
