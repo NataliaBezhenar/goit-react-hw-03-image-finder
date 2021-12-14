@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "./App.css";
+import { ToastContainer } from "react-toastify";
 
 import Modal from "./components/Modal/Modal";
 import Searchbar from "./components/Searchbar/Searchbar";
@@ -78,10 +79,12 @@ class App extends Component {
           onClick={this.toggleModal}
           onItemClick={this.modalContentShow}
         />
+        <Button onLoadMoreClick={this.handleLoadMoreBtnClick} />
         {showModal && (
           <Modal content={modalContent} onClose={this.toggleModal} />
         )}
-        <Button onLoadMoreClick={this.handleLoadMoreBtnClick} />
+
+        <ToastContainer autoClose={3000} position="top-center" />
       </div>
     );
   }
