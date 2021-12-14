@@ -18,15 +18,12 @@ class App extends Component {
     page: 1,
   };
 
-  ////////// Methods
-
   componentDidUpdate(prevProps, { searchQuery, page }) {
     if (searchQuery !== this.state.searchQuery || page !== this.state.page) {
-      console.log("pages changed " + page);
-
       this.getData();
     }
   }
+
   getData = () => {
     const { searchQuery, page } = this.state;
     this.setState({ loading: true });
@@ -44,7 +41,7 @@ class App extends Component {
     this.setState(({ showModal }) => ({ showModal: !showModal }));
   };
 
-  modalContentSet = (itemId) => {
+  modalContentShow = (itemId) => {
     const { output } = this.state;
     const element = output.find(({ id }) => id === itemId);
     this.setState({ modalContent: element.largeImageURL });
@@ -62,13 +59,12 @@ class App extends Component {
     });
   };
 
-  modalContentSet = (itemId) => {
+  modalContentShow = (itemId) => {
     const { output } = this.state;
     const element = output.find(({ id }) => id === itemId);
     this.setState({ modalContent: element.largeImageURL });
   };
 
-  ////////// END Methods
   render() {
     <Searchbar />;
     const { showModal, output, modalContent } = this.state;
@@ -80,12 +76,10 @@ class App extends Component {
         <ImageGallery
           images={output}
           onClick={this.toggleModal}
-          onItemClick={this.modalContentSet}
+          onItemClick={this.modalContentShow}
         />
         {showModal && (
-          <Modal content={modalContent} onClose={this.toggleModal}>
-            <h1>Hi from JS</h1>
-          </Modal>
+          <Modal content={modalContent} onClose={this.toggleModal} />
         )}
         <Button onLoadMoreClick={this.handleLoadMoreBtnClick} />
       </div>

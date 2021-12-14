@@ -10,6 +10,7 @@ export default class ImageGallery extends Component {
       this.props.onClick();
     }
   };
+
   render() {
     const { images, onItemClick } = this.props;
     return (
