@@ -2,13 +2,12 @@ import React, { Component } from "react";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 
-import Modal from "./components/Modal/Modal";
-import Searchbar from "./components/Searchbar/Searchbar";
-import ImageGallery from "./components/ImageGallery/ImageGallery";
-import Button from "./components/Button/Button";
-import { fetchImages } from "./services/fetchApi";
-import Spinner from "./components/Loader/Loader";
-import { PER_PAGE } from "./services/fetchApi";
+import Modal from "./components/Modal";
+import Searchbar from "./components/Searchbar";
+import ImageGallery from "./components/ImageGallery";
+import Button from "./components/Button";
+import { fetchImages, PER_PAGE } from "./services/fetchApi";
+import Spinner from "./components/Loader";
 
 class App extends Component {
   state = {
@@ -24,7 +23,6 @@ class App extends Component {
 
   componentDidUpdate(prevProps, { searchQuery, page }) {
     if (searchQuery !== this.state.searchQuery || page !== this.state.page) {
-      this.setState({ status: "pending" });
       this.getImages();
     }
     this.handleScroll();
@@ -37,8 +35,15 @@ class App extends Component {
     });
   };
 
+  toggleLoadMoreBtn = () => {
+    this.setState(({ hideLoadMoreBtn }) => ({
+      hideLoadMoreBtn: !hideLoadMoreBtn,
+    }));
+  };
+
   getImages = () => {
     const { searchQuery, page } = this.state;
+    this.setState({ status: "pending" });
     fetchImages(searchQuery, page)
       .then(({ hits }) => {
         if (hits.length === 0) {
@@ -46,9 +51,7 @@ class App extends Component {
           return;
         }
         if (hits.length < PER_PAGE) {
-          this.setState(({ hideLoadMoreBtn }) => ({
-            hideLoadMoreBtn: !hideLoadMoreBtn,
-          }));
+          this.toggleLoadMoreBtn();
         }
         this.setState(({ output }) => {
           return {
