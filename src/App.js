@@ -22,6 +22,9 @@ class App extends Component {
   };
 
   componentDidUpdate(prevProps, { searchQuery, page }) {
+    if (searchQuery !== this.state.searchQuery) {
+      this.setState({ status: "pending" });
+    }
     if (searchQuery !== this.state.searchQuery || page !== this.state.page) {
       this.getImages();
     }
@@ -43,7 +46,6 @@ class App extends Component {
 
   getImages = () => {
     const { searchQuery, page } = this.state;
-    this.setState({ status: "pending" });
     fetchImages(searchQuery, page)
       .then(({ hits }) => {
         if (hits.length === 0) {
