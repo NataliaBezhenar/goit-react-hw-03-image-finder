@@ -1,11 +1,9 @@
 import { Component } from "react";
 import "./ImageGallery.css";
-import ImageGalleryItem from "../ImageGalleryItem/ImageGalleryItem";
+import ImageGalleryItem from "../ImageGalleryItem";
 import PropTypes from "prop-types";
 
 export default class ImageGallery extends Component {
-  state = { output: null, loading: false };
-
   handleOpenModal = (e) => {
     if (e.target !== e.currentTarget) {
       this.props.onClick();
